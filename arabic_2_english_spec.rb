@@ -7,6 +7,7 @@ describe Arabic2English do
         expect(5.to_english).to eq("five")
         expect(11.to_english).to eq("eleven")
         expect(12.to_english).to eq("twelve")
+        expect(13.to_english).to eq("thirteen")
         expect(311.to_english).to eq("three hundred and eleven")
       end
     end

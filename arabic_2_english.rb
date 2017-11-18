@@ -13,6 +13,10 @@ module Arabic2English
     9 => {singular: "nine", plural: "nineteen", root: "ninety"}
   }
 
+  TWO_DIGITS_NUMERALS = {
+    11 => "eleven", 12 => "twelve", 13 => "thirteen", 14 => "fourteen", 15 => "fifteen", 16 => "sixteen", 17 => "seventeen", 18 => "eighteen", 19 => "nineteen"
+  }
+
   def to_english
     numerals = get_my_numerals([])
     numerals.reverse.join(", ")

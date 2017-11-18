@@ -51,9 +51,27 @@ module Arabic2English
   end
 
   def get_two_digit_number(number)
-    base = NUMERALS[number[0].to_i]
-    return base[:root] if number[1].to_i.zero?
-    "#{base[:root]}-#{get_one_digit_number(number[0])}"
+    verify_special_cases(number)
+  end
+
+  def verify_special_cases(number)
+    plural_number = TWO_DIGITS_NUMERALS[number.to_i]
+    return plural_number if plural_number
+    define_two_digit_number(number)
+  end
+
+  def define_two_digit_number(number)
+    root = NUMERALS[number[0].to_i][:root]
+    return root if is_it_zero?(number[1])
+    parse_two_digits_with_root(root, number)
+  end
+
+  def parse_two_digits_with_root(root, number)
+    if root
+      "#{root}-#{get_one_digit_number(number[1])}"
+    else
+      get_one_digit_number(number[1])
+    end
   end
 
   def get_three_digit_number(number)
@@ -61,6 +79,10 @@ module Arabic2English
     remaining_number = number[1..2]
     return "#{base}" if remaining_number.to_i.zero?
     "#{base} and #{get_two_digit_number(remaining_number)}"
+  end
+
+  def is_it_zero?(number)
+    number.to_i.zero?
   end
 end
 

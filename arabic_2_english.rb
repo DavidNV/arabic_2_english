@@ -18,13 +18,13 @@ module Arabic2English
   }
 
   def to_english
-    numerals = get_my_numerals([])
-    numerals.reverse.join(", ")
+    numerals = get_my_numerals
+    numerals.reverse.join(" and ")
   end
 
   private
-  def get_my_numerals(array)
-    array.tap do
+  def get_my_numerals
+    [].tap do |array|
       get_numbers_collection.each_with_index do |number, index|
         array << define_path_for(number)
       end
@@ -36,14 +36,12 @@ module Arabic2English
   end
   
   def define_path_for(number)
-    case number.length
-    when 1
-      get_one_digit_number(number)
-    when 2
-      get_two_digit_number(number)
-    when 3
-      get_three_digit_number(number)
-    end
+    paths = {
+      1 => lambda { get_one_digit_number(number) },
+      2 => lambda { get_two_digit_number(number) },
+      3 => lambda { get_three_digit_number(number) }
+    }
+    paths[number.length].call
   end
 
   def get_one_digit_number(number)

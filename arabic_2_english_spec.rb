@@ -59,17 +59,25 @@ describe Arabic2English do
     end
   end
   context "The number has more than three digits" do
-    context "the number contains eleven or twelve" do
-      it "should return the numeral with its respective delimiters and the special case" do
-        expect(1111.to_english).to eq("one thousand and one hundred and eleven")
-        expect(2212.to_english).to eq("two thousand and two hundred and twelve")
+    context "it's an special case" do
+      context "the special case contains eleven or twelve" do
+        it "should return the special numeral" do
+          expect(763411.to_english).to eq("seven hundred and sixty-three thousand and four hundred and eleven")
+          expect(1063412.to_english).to eq("one million and sixty-three thousand and four hundred and twelve")
+          #Here the eleven and twelve are at the beginning
+          expect(111411.to_english).to eq("one hundred and eleven thousand and four hundred and eleven")
+          expect(12063412.to_english).to eq("twelve million and sixty-three thousand and four hundred and twelve")
+        end
       end
     end
-    context "the number it's a regular base root" do
-      it "should return the numeral with hundreds delimiter" do
-        expect(2222.to_english).to eq("two thousand and two hundred and twenty-two")
-        expect(22222.to_english).to eq("twenty-two thousand and two hundred and twenty-two")
+    context "it's not an special case like eleven" do
+      it "should return english numeral" do
+        expect(258411.to_english).to eq("two hundred and fifty-eight thousand and four hundred and eleven")
+        expect(990063412.to_english).to eq("nine hundred and ninety million and sixty-three thousand and four hundred and twelve")
+        expect(21411.to_english).to eq("twenty-one thousand and four hundred and eleven")
+        expect(97642.to_english).to eq("ninety-seven thousand and six hundred and forty-two")
       end
     end
   end
+
 end

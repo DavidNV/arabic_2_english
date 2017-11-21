@@ -13,11 +13,12 @@ module Arabic2English
     9 => {singular: "nine", plural: "nineteen", root: "ninety"}
   }
 
+  DELIMITERS = ["", " thousand", " million", " billion", " trillion", " quadrillion", " quintillion", " sextillion"]
+
   TWO_DIGITS_NUMERALS = {
     11 => "eleven", 12 => "twelve", 13 => "thirteen", 14 => "fourteen", 15 => "fifteen", 16 => "sixteen", 17 => "seventeen", 18 => "eighteen", 19 => "nineteen"
   }
 
-  DELIMITERS = ["", " thousand", " million", " billion", " trillion", " quadrillion", " quintillion", " sextillion"]
 
   def to_english
     numerals = get_my_numerals
@@ -28,7 +29,9 @@ module Arabic2English
   def get_my_numerals
     [].tap do |array|
       get_numbers_collection.each_with_index do |number, index|
-        array << "#{define_path_for(number)}#{number_delimiter_for(index)}"
+        next if its_zero_but_has_other_digits(number, index: index)
+        clean_number = define_path_for(number)
+        array << "#{clean_number}#{number_delimiter_for(index)}"
       end
     end
   end
@@ -37,6 +40,7 @@ module Arabic2English
     self.to_s.reverse.each_char.each_slice(3).map {|x| x.reverse.join }
   end
   
+  #TODO rename me this please
   def define_path_for(number)
     paths = {
       1 => lambda { get_one_digit_number(number) },
@@ -50,8 +54,29 @@ module Arabic2English
     NUMERALS[number.to_i][:singular]
   end
 
-  def get_two_digit_number(number)
-    verify_special_cases(number)
+  def get_two_digit_number(number, prefix: nil)
+    parsed_number = verify_special_cases(number)
+    if prefix
+      "#{prefix} and #{parsed_number}"
+    else
+      parsed_number
+    end
+  end
+
+  def get_three_digit_number(number)
+    number_for_prefix = number[0].to_i
+    remaining_number = number[1..2]
+    prefix = prefix_for_three_digits_number(number_for_prefix)
+    prefixed_three_digit_number(prefix, remaining_number)
+  end
+
+  def prefix_for_three_digits_number(number_for_prefix)
+    "#{NUMERALS[number_for_prefix][:singular]} hundred" unless is_it_zero?(number_for_prefix)
+  end
+
+  def prefixed_three_digit_number(prefix, remaining_number)
+    return prefix if is_it_zero?(remaining_number)
+    get_two_digit_number(remaining_number, prefix: prefix)
   end
 
   def verify_special_cases(number)
@@ -74,16 +99,12 @@ module Arabic2English
     end
   end
 
-  #TODO Broken specs here. Zero hundred
-  def get_three_digit_number(number)
-    base = "#{get_one_digit_number(number[0])} hundred"
-    remaining_number = number[1..2]
-    return "#{base}" if remaining_number.to_i.zero?
-    "#{base} and #{get_two_digit_number(remaining_number)}"
-  end
-
   def is_it_zero?(number)
     number.to_i.zero?
+  end
+
+  def its_zero_but_has_other_digits(number, index:)
+    is_it_zero?(number) && get_numbers_collection.count > 1
   end
 
   def number_delimiter_for(delimiter_level)

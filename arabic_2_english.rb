@@ -17,6 +17,8 @@ module Arabic2English
     11 => "eleven", 12 => "twelve", 13 => "thirteen", 14 => "fourteen", 15 => "fifteen", 16 => "sixteen", 17 => "seventeen", 18 => "eighteen", 19 => "nineteen"
   }
 
+  DELIMITERS = ["", " thousand", " million", " billion", " trillion", " quadrillion", " quintillion", " sextillion"]
+
   def to_english
     numerals = get_my_numerals
     numerals.reverse.join(" and ")
@@ -26,7 +28,7 @@ module Arabic2English
   def get_my_numerals
     [].tap do |array|
       get_numbers_collection.each_with_index do |number, index|
-        array << define_path_for(number)
+        array << "#{define_path_for(number)}#{number_delimiter_for(index)}"
       end
     end
   end
@@ -72,6 +74,7 @@ module Arabic2English
     end
   end
 
+  #TODO Broken specs here. Zero hundred
   def get_three_digit_number(number)
     base = "#{get_one_digit_number(number[0])} hundred"
     remaining_number = number[1..2]
@@ -81,6 +84,10 @@ module Arabic2English
 
   def is_it_zero?(number)
     number.to_i.zero?
+  end
+
+  def number_delimiter_for(delimiter_level)
+    DELIMITERS[delimiter_level]
   end
 end
 

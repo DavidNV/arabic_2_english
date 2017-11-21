@@ -49,11 +49,18 @@ describe Arabic2English do
           expect(912.to_english).to eq("nine hundred and twelve")
         end
       end
+      context "the input its negative" do
+        it "should english numeral with a 'negative' prefix" do
+          expect(-330.to_english).to eq("negative three hundred and thirty")
+          expect(-12.to_english).to eq("negative twelve")
+          expect(-511.to_english).to eq("negative five hundred and eleven")
+        end
+      end
     end
     context "it's not an special case like eleven" do
       it "should return the english numeral" do
         expect(441.to_english).to eq("four hundred and forty-one")
-        expect(537.to_english).to eq("five hundred and thirty-seven")
+        expect(-537.to_english).to eq("negative five hundred and thirty-seven")
         expect(99.to_english).to eq("ninety-nine")
       end
     end
@@ -69,6 +76,15 @@ describe Arabic2English do
           expect(12063412.to_english).to eq("twelve million and sixty-three thousand and four hundred and twelve")
         end
       end
+      context "the input its negative" do
+        it "should english numeral with a 'negative' prefix" do
+          expect(-763411.to_english).to eq("negative seven hundred and sixty-three thousand and four hundred and eleven")
+          expect(-1063412.to_english).to eq("negative one million and sixty-three thousand and four hundred and twelve")
+          #Same here
+          expect(-111411.to_english).to eq("negative one hundred and eleven thousand and four hundred and eleven")
+          expect(-12063412.to_english).to eq("negative twelve million and sixty-three thousand and four hundred and twelve")
+        end
+      end
     end
     context "it's not an special case like eleven" do
       it "should return english numeral" do
@@ -79,5 +95,4 @@ describe Arabic2English do
       end
     end
   end
-
 end

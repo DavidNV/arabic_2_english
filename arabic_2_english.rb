@@ -19,7 +19,6 @@ module Arabic2English
     11 => "eleven", 12 => "twelve", 13 => "thirteen", 14 => "fourteen", 15 => "fifteen", 16 => "sixteen", 17 => "seventeen", 18 => "eighteen", 19 => "nineteen"
   }
 
-
   def to_english
     numerals = get_my_numerals
     numerals.reverse.join(" and ")
@@ -30,31 +29,32 @@ module Arabic2English
     [].tap do |array|
       get_numbers_collection.each_with_index do |number, index|
         next if its_zero_but_has_other_digits(number, index: index)
-        clean_number = define_path_for(number)
+        clean_number = transform_number_into_numeral(number)
         array << "#{clean_number}#{number_delimiter_for(index)}"
       end
+      was_a_negative_number?(array)
     end
   end
 
-  def get_numbers_collection
-    self.to_s.reverse.each_char.each_slice(3).map {|x| x.reverse.join }
-  end
-  
-  #TODO rename me this please
-  def define_path_for(number)
+  def transform_number_into_numeral(number)
     paths = {
-      1 => lambda { get_one_digit_number(number) },
-      2 => lambda { get_two_digit_number(number) },
-      3 => lambda { get_three_digit_number(number) }
+      1 => lambda { get_one_digit_numeral(number: number) },
+      2 => lambda { get_two_digits_numeral(number: number) },
+      3 => lambda { get_three_digits_numeral(number: number) }
     }
     paths[number.length].call
   end
 
-  def get_one_digit_number(number)
+  #This is in order to get the delimiter and reuse code.
+  def get_numbers_collection
+    self.to_s.reverse.each_char.each_slice(3).map {|x| x.reverse.join }
+  end
+
+  def get_one_digit_numeral(number:)
     NUMERALS[number.to_i][:singular]
   end
 
-  def get_two_digit_number(number, prefix: nil)
+  def get_two_digits_numeral(number:, prefix: nil)
     parsed_number = verify_special_cases(number)
     if prefix
       "#{prefix} and #{parsed_number}"
@@ -63,7 +63,7 @@ module Arabic2English
     end
   end
 
-  def get_three_digit_number(number)
+  def get_three_digits_numeral(number:)
     number_for_prefix = number[0].to_i
     remaining_number = number[1..2]
     prefix = prefix_for_three_digits_number(number_for_prefix)
@@ -76,13 +76,7 @@ module Arabic2English
 
   def prefixed_three_digit_number(prefix, remaining_number)
     return prefix if is_it_zero?(remaining_number)
-    get_two_digit_number(remaining_number, prefix: prefix)
-  end
-
-  def verify_special_cases(number)
-    plural_number = TWO_DIGITS_NUMERALS[number.to_i]
-    return plural_number if plural_number
-    define_two_digit_number(number)
+    get_two_digits_numeral(number: remaining_number, prefix: prefix)
   end
 
   def define_two_digit_number(number)
@@ -91,12 +85,11 @@ module Arabic2English
     parse_two_digits_with_root(root, number)
   end
 
-  def parse_two_digits_with_root(root, number)
-    if root
-      "#{root}-#{get_one_digit_number(number[1])}"
-    else
-      get_one_digit_number(number[1])
-    end
+ #This, in order to check if the value it's 00, meaning, there it's not any special case
+  def verify_special_cases(number)
+    plural_number = TWO_DIGITS_NUMERALS[number.to_i]
+    return plural_number if plural_number
+    define_two_digit_number(number)
   end
 
   def is_it_zero?(number)
@@ -107,9 +100,25 @@ module Arabic2English
     is_it_zero?(number) && get_numbers_collection.count > 1
   end
 
+  def parse_two_digits_with_root(root, number)
+    if root
+      "#{root}-#{get_one_digit_numeral(number: number[1].to_i)}"
+    else
+      get_one_digit_numeral(number: number[1].to_i)
+    end
+  end
+
   def number_delimiter_for(delimiter_level)
     DELIMITERS[delimiter_level]
   end
+
+  def was_a_negative_number?(array)
+    if (not is_it_zero?(self)) && self.to_s.include?("-")
+      last_position = array[-1]
+      array[-1] = "negative #{last_position}"
+    end
+  end
+
 end
 
 class Integer

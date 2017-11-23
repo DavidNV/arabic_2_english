@@ -1,4 +1,12 @@
+module JustTesting
+  refine String do
+    def slice_string_by_three
+      self.reverse.each_char.each_slice(3).map {|sliced_chars| sliced_chars.reverse.join }
+    end
+  end
+end
 module Arabic2English
+  using JustTesting
 
   NUMERALS = {
     0 => {singular: "zero"},
@@ -123,7 +131,7 @@ module Arabic2English
   end
 
   def get_numbers_collection
-    self.to_s.reverse.each_char.each_slice(3).map {|sliced_chars| sliced_chars.reverse.join }
+    self.to_s.slice_string_by_three
   end
 
   #========================= End: Utility methods ==========================================================
